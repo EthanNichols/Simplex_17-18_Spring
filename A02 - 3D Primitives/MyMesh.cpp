@@ -457,7 +457,7 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	for (int i = 0; i < a_nSubdivisionsA; i++) {
 
 		//Calulcate the center position that will be filled around
-		vector3 center = vector3((a_fInnerRadius / 2 + radius) * sin(glm::radians(rotationAmount * i)), 0, (a_fInnerRadius / 2 + radius) * cos(glm::radians(rotationAmount * i)));
+		vector3 center = vector3((a_fInnerRadius + radius) * sin(glm::radians(rotationAmount * i)), 0, (a_fInnerRadius + radius) * cos(glm::radians(rotationAmount * i)));
 
 		//Rotation matrix to face out from the center
 		glm::mat3 rotMatrix;
