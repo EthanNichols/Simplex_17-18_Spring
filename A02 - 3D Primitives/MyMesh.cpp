@@ -443,9 +443,52 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	//Radius of the torus' filled cicle
+	float radius = (a_fOuterRadius - a_fInnerRadius) / 2.0f;
+
+	//List of vertices
+	std::vector<vector3> vertices;
+
+	//Get the rotation amounts for the for the circles
+	float rotationAmount = 360 / a_nSubdivisionsA;
+	float rotationAmount2 = 360 / a_nSubdivisionsB;
+
+	//Create the horizontal part of the torus
+	for (int i = 0; i < a_nSubdivisionsA; i++) {
+
+		//Calulcate the center position that will be filled around
+		vector3 center = vector3((a_fInnerRadius / 2 + radius) * sin(glm::radians(rotationAmount * i)), 0, (a_fInnerRadius / 2 + radius) * cos(glm::radians(rotationAmount * i)));
+
+		//Rotation matrix to face out from the center
+		glm::mat3 rotMatrix;
+		rotMatrix[0][0] = sin(glm::radians(rotationAmount * i));
+		rotMatrix[0][2] = cos(glm::radians(rotationAmount * i));
+		rotMatrix[1][1] = 1;
+		rotMatrix[2][0] = cos(glm::radians(rotationAmount * i));
+		rotMatrix[2][2] = -sin(glm::radians(rotationAmount * i));
+
+		//Create the vertical part of the torus
+		for (int p = 0; p < a_nSubdivisionsB; p++) {
+
+			//Add the vertices that angle outward around the center point
+			vertices.push_back(center + rotMatrix * vector3(radius * sin(glm::radians(rotationAmount2 * p)), radius * cos(glm::radians(rotationAmount2 * p)), 0));
+		}
+	}
+
+	//Calculate the sub divisions
+	int subCount = a_nSubdivisionsA * a_nSubdivisionsB;
+
+	//Create the quads from the vertex list
+	for (int i = 0; i < subCount; i++) {
+
+		//Get other vertices for the quad
+		int i1 = (i + 1 < subCount) ? i + 1 : (i + 1) - subCount;
+		int i2 = (i + a_nSubdivisionsB < subCount) ? i + a_nSubdivisionsB : (i + a_nSubdivisionsB) - subCount;
+		int i3 = (i + a_nSubdivisionsB + 1 < subCount) ? i + a_nSubdivisionsB + 1 : (i + a_nSubdivisionsB + 1) - subCount;
+
+		//Create the quad
+		AddQuad(vertices[i], vertices[i1], vertices[i2], vertices[i3]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
