@@ -275,9 +275,31 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	//List of vertices for the base circle
+	std::vector<vector3> vertices;
+
+	//Top and bottom center vertices
+	vector3 topVertex = vector3(0, a_fHeight / 2, 0);
+	vector3 bottomVertex = vector3(0, -a_fHeight / 2, 0);
+
+	//Calulcate the degrees each point is spaced apart
+	float degree = 360 / (float)a_nSubdivisions;
+
+	//Run through the amount of base vertices and add the positions to the vertices list
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		vertices.push_back(vector3(a_fRadius * sin(glm::radians(degree * i)), -a_fHeight / 2, a_fRadius * cos(glm::radians(degree * i))));
+	}
+
+	//Loop through all of the vertices
+	for (int i = 0; i < a_nSubdivisions; i++) {
+
+		//Get the next vertex and make sure it stays in the range of the list
+		int next = (i+1 < a_nSubdivisions) ? i+1 : (i+1) - a_nSubdivisions;
+
+		//Create a tri from the base vertices to the top and bottom vertices
+		AddTri(vertices[i], vertices[next], topVertex);
+		AddTri(vertices[next], vertices[i], bottomVertex);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -298,10 +320,38 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 
 	Release();
 	Init();
+	
+	//List of vertices for the base circle
+	std::vector<vector3> vertices;
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	//Top and bottom center vertices
+	vector3 topVertex = vector3(0, a_fHeight / 2, 0);
+	vector3 bottomVertex = vector3(0, -a_fHeight / 2, 0);
+
+	//Calulcate the degrees each point is spaced apart
+	float degree = 360 / (float)a_nSubdivisions;
+
+	//Run through the amount of base vertices and add the positions to the vertices list
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		vertices.push_back(vector3(a_fRadius * sin(glm::radians(degree * i)), a_fHeight / 2, a_fRadius * cos(glm::radians(degree * i))));
+		vertices.push_back(vector3(a_fRadius * sin(glm::radians(degree * i)), -a_fHeight / 2, a_fRadius * cos(glm::radians(degree * i))));
+	}
+
+	int subCount = a_nSubdivisions * 2;
+
+	//Loop through all of the vertices
+	for (int i = 0; i < subCount; i+=2) {
+
+		//Get the next vertex and make sure it stays in the range of the list
+		int i1 = (i + 2 < subCount) ? i + 2 : (i + 2) - subCount;
+		int i2 = (i + 1 < subCount) ? i + 1 : (i + 1) - subCount;
+		int i3 = (i + 3 < subCount) ? i + 3 : (i + 3) - subCount;
+
+		//Create a tri from the base vertices to the top and bottom vertices
+		AddTri(vertices[i], vertices[i1], topVertex);
+		AddTri(vertices[i3], vertices[i2], bottomVertex);
+		AddQuad(vertices[i2], vertices[i3], vertices[i], vertices[i1]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -329,9 +379,41 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	//List of vertices for the base circle
+	std::vector<vector3> topVertices;
+	std::vector<vector3> bottomVertices;
+
+	//Calulcate the degrees each point is spaced apart
+	float degree = 360 / (float)a_nSubdivisions;
+
+	//Create the vertices to store in the respective list
+	for (int i = 0; i < a_nSubdivisions; i++) {
+
+		//Create the top vertices
+		topVertices.push_back(vector3(a_fInnerRadius * sin(glm::radians(degree * i)), a_fHeight / 2, a_fInnerRadius * cos(glm::radians(degree * i))));
+		topVertices.push_back(vector3(a_fOuterRadius * sin(glm::radians(degree * i)), a_fHeight / 2, a_fOuterRadius * cos(glm::radians(degree * i))));
+
+		//Create the bottom vertices
+		bottomVertices.push_back(vector3(a_fInnerRadius * sin(glm::radians(degree * i)), -a_fHeight / 2, a_fInnerRadius * cos(glm::radians(degree * i))));
+		bottomVertices.push_back(vector3(a_fOuterRadius* sin(glm::radians(degree * i)), -a_fHeight / 2, a_fOuterRadius * cos(glm::radians(degree * i))));
+	}
+
+	int subCount = a_nSubdivisions * 2;
+
+	//Loop through all of the vertices
+	for (int i = 0; i < subCount; i+=2) {
+
+		//Other vertices needed for quads
+		int i1 = (i + 1 < subCount) ? i + 1 : (i + 1) - subCount;
+		int i2 = (i + 2 < subCount) ? i + 2 : (i + 2) - subCount;
+		int i3 = (i + 3 < subCount) ? i + 3 : (i + 3) - subCount;
+
+		//Create all the possible quads to the vertices
+		AddQuad(topVertices[i], topVertices[i1], topVertices[i2], topVertices[i3]);
+		AddQuad(bottomVertices[i2], bottomVertices[i3], bottomVertices[i], bottomVertices[i1]);
+		AddQuad(bottomVertices[i], topVertices[i], bottomVertices[i2], topVertices[i2]);
+		AddQuad(bottomVertices[i3], topVertices[i3], bottomVertices[i1], topVertices[i1]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -386,9 +468,113 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	//Structure for the triangles
+	struct faceVerts
+	{
+		//The vertices to make the triangle
+		vector3 v1, v2, v3;
+
+		//Create the face
+		faceVerts(vector3 _v1, vector3 _v2, vector3 _v3) {
+			v1 = _v1;
+			v2 = _v2;
+			v3 = _v3;
+		}
+	};
+
+	//List of vertices for the vertices and faces
+	std::vector<vector3> vertices;
+	std::vector<faceVerts> faces;
+
+	//Unit Sphere size
+	float t = (1 + (float)glm::sqrt(5.0)) / 2.0f;
+
+	//Create the 12 base vertices
+	for (int i = 0; i < 12; i++) {
+
+		//Set the golden rectangle offset, and unit size offset
+		float localT = (i % 4 < 2) ? t : t * -1;
+		int offset = (i % 2 == 0) ? -1 : 1;
+
+		//Calculate the length from the center
+		float length = glm::sqrt(1 + localT * localT);
+
+		//Set the vertices for the 3 golden rectangles
+		if (i < 4)
+			vertices.push_back((vector3(offset, localT, 0) / length) * a_fRadius);
+		else if (i < 8)
+			vertices.push_back((vector3(0, offset, localT) / length) * a_fRadius);
+		else
+			vertices.push_back((vector3(localT, 0, offset) / length) * a_fRadius);
+	}
+
+//Create the faces for the smallest possible icosphere
+#pragma region Manual creation of starting faces
+	faces.push_back(faceVerts(vertices[0], vertices[11], vertices[5]));
+	faces.push_back(faceVerts(vertices[0], vertices[5], vertices[1]));
+	faces.push_back(faceVerts(vertices[0], vertices[1], vertices[7]));
+	faces.push_back(faceVerts(vertices[0], vertices[7], vertices[10]));
+	faces.push_back(faceVerts(vertices[0], vertices[10], vertices[11]));
+
+	faces.push_back(faceVerts(vertices[3], vertices[9], vertices[4]));
+	faces.push_back(faceVerts(vertices[3], vertices[4], vertices[2]));
+	faces.push_back(faceVerts(vertices[3], vertices[2], vertices[6]));
+	faces.push_back(faceVerts(vertices[3], vertices[6], vertices[8]));
+	faces.push_back(faceVerts(vertices[3], vertices[8], vertices[9]));
+
+	faces.push_back(faceVerts(vertices[1], vertices[5], vertices[9]));
+	faces.push_back(faceVerts(vertices[5], vertices[11], vertices[4]));
+	faces.push_back(faceVerts(vertices[11], vertices[10], vertices[2]));
+	faces.push_back(faceVerts(vertices[10], vertices[7], vertices[6]));
+	faces.push_back(faceVerts(vertices[7], vertices[1], vertices[8]));
+
+	faces.push_back(faceVerts(vertices[4], vertices[9], vertices[5]));
+	faces.push_back(faceVerts(vertices[2], vertices[4], vertices[11]));
+	faces.push_back(faceVerts(vertices[6], vertices[2], vertices[10]));
+	faces.push_back(faceVerts(vertices[8], vertices[6], vertices[7]));
+	faces.push_back(faceVerts(vertices[9], vertices[8], vertices[1]));
+#pragma endregion
+
+	//Subdivide the bade triangles
+	for (int i = 1; i < a_nSubdivisions; i++) {
+		std::vector<faceVerts> newFaces;
+
+		for each (faceVerts tri in faces)
+		{
+			//Get the three subdivided positions
+			vector3 sub1 = (tri.v1 + tri.v2) / 2.0f;
+			vector3 sub2 = (tri.v2 + tri.v3) / 2.0f;
+			vector3 sub3 = (tri.v3 + tri.v1) / 2.0f;
+
+			//Calculate the length of the positions
+			float sub1Length = glm::sqrt(sub1.x * sub1.x + sub1.y * sub1.y + sub1.z * sub1.z);
+			float sub2Length = glm::sqrt(sub2.x * sub2.x + sub2.y * sub2.y + sub2.z * sub2.z);
+			float sub3Length = glm::sqrt(sub3.x * sub3.x + sub3.y * sub3.y + sub3.z * sub3.z);
+
+			//Normalize and set the actual position for the subdivisions
+			sub1 = (sub1 / sub1Length) * a_fRadius;
+			sub2 = (sub2 / sub2Length) * a_fRadius;
+			sub3 = (sub3 / sub3Length) * a_fRadius;
+
+			//Add the new faces to the local face list
+			newFaces.push_back(faceVerts(tri.v1, sub1, sub3));
+			newFaces.push_back(faceVerts(tri.v2, sub2, sub1));
+			newFaces.push_back(faceVerts(tri.v3, sub3, sub2));
+			newFaces.push_back(faceVerts(sub1, sub2, sub3));
+		}
+
+		//Clear and set the old face list to the new face list
+		faces.clear();
+		faces = newFaces;
+		newFaces.clear();
+	}
+
+	//Create triangles based off of the face list
+	for (int i = 0; i < faces.size(); i++) {
+		AddTri(faces[i].v1, faces[i].v2, faces[i].v3);
+	}
+
+	faces.clear();
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);

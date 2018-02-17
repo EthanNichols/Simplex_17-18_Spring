@@ -21,6 +21,8 @@ using namespace Simplex;
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
 
+#include <vector>
+
 class MyMesh
 {
 	bool m_bBinded = false;		//Binded flag
