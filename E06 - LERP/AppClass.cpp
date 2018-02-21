@@ -51,19 +51,30 @@ void Application::Display(void)
 	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
 	fTimer += m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 
-	//calculate the current position
-	vector3 v3CurrentPos;
+#pragma region My move between points code
+
+	//The current point the model is at
+	static int iStopPoint = 0;
+
+	//Get the current and next position for the model
+	vector3 v3CurrentPos = m_stopsList[iStopPoint];
+	vector3 v3EndPos = m_stopsList[(iStopPoint + 1) % m_stopsList.size()];
 	
+	//The time between points, and the current percentage between points
+	float fTimeBetweenStops = 2.0f;
+	float fPercent = MapValue(fTimer, 0.0f, fTimeBetweenStops, 0.0f, 1.0f);
 
-
-
-
-	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
-	//-------------------
+	//Lerp between the two points relative to the percentage
+	v3CurrentPos = glm::lerp(m_stopsList[iStopPoint], m_stopsList[(iStopPoint + 1) % m_stopsList.size()], fPercent);
 	
+	//Test if the new point has been reached
+	if (fPercent >= 1) {
+		//Set the next point, and reset the movement timer
+		iStopPoint = (iStopPoint + 1) % m_stopsList.size();
+		fTimer = m_pSystem->GetDeltaTime(uClock);
+	}
 
-
+#pragma endregion
 	
 	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
@@ -74,7 +85,8 @@ void Application::Display(void)
 	// Draw stops
 	for (uint i = 0; i < m_stopsList.size(); ++i)
 	{
-		m_pMeshMngr->AddSphereToRenderList(glm::translate(m_stopsList[i]) * glm::scale(vector3(0.05f)), C_GREEN, RENDER_WIRE);
+		vector3 v3LocalPos = m_stopsList[i];
+		m_pMeshMngr->AddSphereToRenderList(glm::translate(v3LocalPos) * glm::scale(vector3(0.05f)), C_GREEN, RENDER_WIRE);
 	}
 	
 	// draw a skybox
