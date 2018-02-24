@@ -37,6 +37,8 @@ private:
 	ControllerInput* m_pController[8]; //Controller
 	uint m_uActCont = 0; //Active Controller of the Application
 
+	float fTimer = 0.0f;
+
 public:
 #pragma region Constructor / Run / Destructor
 	/*
