@@ -25,13 +25,13 @@ void Application::Display(void)
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 
-	
-	m_m4Model = glm::rotate(IDENTITY_M4, m_v3Rotation.x, vector3(1.0f, 0.0f, 0.0f));
-	m_m4Model = glm::rotate(m_m4Model, m_v3Rotation.y, vector3(0.0f, 1.0f, 0.0f));
-	m_m4Model = glm::rotate(m_m4Model, m_v3Rotation.z, vector3(0.0f, 0.0f, 1.0f));
+	//Update the rotation depending on the keys pressed
+	m_qOrientation = m_qOrientation * glm::angleAxis(1.0f, m_v3Rotation);
 
-	m_qOrientation = m_qOrientation * glm::angleAxis(1.0f, vector3(1.0f));
+	//Reset the change in orientation
+	m_v3Rotation = vector3(0);
 	
+	//Set the rotation that the shape is at
 	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qOrientation));
 	
 	// draw a skybox
