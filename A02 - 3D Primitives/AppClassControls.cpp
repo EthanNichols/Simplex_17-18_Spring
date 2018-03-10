@@ -1,4 +1,5 @@
 #include "AppClass.h"
+
 //Mouse
 void Application::ProcessMouseMovement(sf::Event a_event)
 {

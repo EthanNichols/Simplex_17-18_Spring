@@ -3,7 +3,7 @@ using namespace Simplex;
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Ethan Nichols - etn6701@rit.edu";
 
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -30,6 +30,37 @@ void Application::Update(void)
 
 	//Is the first person camera active?
 	CameraRotation();
+
+	//Get and set a normalized vector3 facing forward from the camera view
+	vector3 lForward = m_pCamera->GetTarget() - m_pCamera->GetPosition();
+	lForward = lForward / (float)glm::sqrt((lForward.x * lForward.x) + (lForward.y * lForward.y) + (lForward.z * lForward.z));
+
+	//Get the vector3 that is up from the camera
+	vector3 lUp = m_pCamera->GetUp();
+
+	//Get the cross product of the forward and up to get the left vector3 and normalize it
+	vector3 lLeft = vector3(((lForward.y * lUp.z) - (lForward.z * lUp.y)) * 1,
+							((lForward.z * lUp.x) - (lForward.x * lUp.z)) * 1,
+							((lForward.x * lUp.y) - (lForward.y * lUp.x)) * 1);
+	lLeft = lLeft / (float)glm::sqrt((lLeft.x * lLeft.x) + (lLeft.y * lLeft.y) + (lLeft.z * lLeft.z));
+
+	//Calculate the movement forward and left from the inputs
+	vector3 movement = lForward * m_iforward + lLeft * m_ileft;
+
+	//vector3 newTarget = glm::lerp(m_pCamera->GetTarget(), m_pCamera->GetTarget(), 1.0f);
+	//newTarget = newTarget / (float)glm::sqrt((newTarget.x * newTarget.x) + (newTarget.y * newTarget.y) + (newTarget.z * newTarget.z));
+
+	//Smoothly (LERP) move to the new position
+	vector3 newPos = glm::lerp(m_pCamera->GetPosition(), m_pCamera->GetPosition() + movement, 1.0f);
+
+	//Set the new position
+	m_pCamera->SetPosition(newPos);
+
+	//Set the target in front of the camera's relative position
+	m_pCamera->SetTarget(m_pCamera->GetPosition() + lForward);
+
+	//Set the current up vector to the previous up vector
+	m_pCamera->SetUp(lUp);
 
 	//Add objects to the Manager
 	for (int j = -50; j < 50; j += 2)

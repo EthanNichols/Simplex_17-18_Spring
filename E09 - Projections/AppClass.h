@@ -10,21 +10,18 @@ Date: 2017/05
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
 
-#include "MyMeshManager.h"
+#include "MyMesh.h"
 namespace Simplex
 {
 
 class Application
 {
-	MyCamera* m_pCamera = nullptr; //Camera class
-	MyMeshManager* m_pMyMeshMngr = nullptr; //My Mesh Manager
-	String m_sProgrammer = "Ethan Nichols - etn6701@rit.edu"; //Programmer
-
-	float m_iforward = 0;
-	float m_ileft = 0;
-
-	float m_fAngleX = 0;
-	float m_fAngleY = 0;
+	MyMesh* m_pMesh1 = nullptr; //Primitive to display
+	MyMesh* m_pMesh2 = nullptr; //Primitive to display
+	MyMesh* m_pMesh3 = nullptr; //Primitive to display
+	uint m_uProjection = 1; //The projection used for each mesh
+	MyCamera* m_pCamera = nullptr; //camera we will use in this application
+	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //Programmer ID
 private:
 	static ImGuiObject gui; //GUI object
 

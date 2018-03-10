@@ -10,21 +10,17 @@ Date: 2017/05
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
 
-#include "MyMeshManager.h"
-namespace Simplex
-{
+#include "MyMesh.h"
 
 class Application
 {
-	MyCamera* m_pCamera = nullptr; //Camera class
-	MyMeshManager* m_pMyMeshMngr = nullptr; //My Mesh Manager
-	String m_sProgrammer = "Ethan Nichols - etn6701@rit.edu"; //Programmer
+	MyMesh* m_pMesh = nullptr;
+	MyMesh* m_pMesh1 = nullptr;
 
-	float m_iforward = 0;
-	float m_ileft = 0;
+	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 
-	float m_fAngleX = 0;
-	float m_fAngleY = 0;
+	float fFar = 17.0f;
+	float fDistance = 10.0f;
 private:
 	static ImGuiObject gui; //GUI object
 
@@ -314,11 +310,9 @@ private:
 	OUTPUT: ---
 	*/
 	Application& operator=(Application const& input);
-	
+
 #pragma endregion
 };
-
-} //namespace simplex
 
 #endif //__APPLICATIONCLASS_H_
 
