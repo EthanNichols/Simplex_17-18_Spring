@@ -22,6 +22,9 @@ class Application
 
 	float m_iforward = 0;
 	float m_ileft = 0;
+
+	float m_fAngleX = 0;
+	float m_fAngleY = 0;
 private:
 	static ImGuiObject gui; //GUI object
 

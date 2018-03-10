@@ -47,6 +47,9 @@ void Application::Update(void)
 	//Calculate the movement forward and left from the inputs
 	vector3 movement = lForward * m_iforward + lLeft * m_ileft;
 
+	//vector3 newTarget = glm::lerp(m_pCamera->GetTarget(), m_pCamera->GetTarget(), 1.0f);
+	//newTarget = newTarget / (float)glm::sqrt((newTarget.x * newTarget.x) + (newTarget.y * newTarget.y) + (newTarget.z * newTarget.z));
+
 	//Smoothly (LERP) move to the new position
 	vector3 newPos = glm::lerp(m_pCamera->GetPosition(), m_pCamera->GetPosition() + movement, 1.0f);
 
@@ -58,10 +61,6 @@ void Application::Update(void)
 
 	//Set the current up vector to the previous up vector
 	m_pCamera->SetUp(lUp);
-
-	//Reset the forward and left value
-	m_iforward = 0;
-	m_ileft = 0;
 
 	//Add objects to the Manager
 	for (int j = -50; j < 50; j += 2)

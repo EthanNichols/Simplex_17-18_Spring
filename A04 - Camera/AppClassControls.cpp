@@ -369,8 +369,9 @@ void Application::CameraRotation(float a_fSpeed)
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
 	//Change the Yaw and the Pitch of the camera
-	m_pCameraMngr->ChangeYaw(fAngleY * 3.0f);
-	m_pCameraMngr->ChangePitch(-fAngleX * 3.0f);
+	m_fAngleX = fAngleX;
+	m_fAngleY = fAngleY;
+
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
 //Keyboard
@@ -380,6 +381,11 @@ void Application::ProcessKeyboard(void)
 	This is used for things that are continuously happening,
 	for discreet on/off use ProcessKeyboardPressed/Released
 	*/
+
+	//Reset the forward and left value
+	m_iforward = 0;
+	m_ileft = 0;
+
 #pragma region Camera Position
 	float fSpeed = 0.1f;
 	float fMultiplier = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
