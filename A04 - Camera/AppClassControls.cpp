@@ -69,18 +69,6 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 {
 	switch (a_event.key.code)
 	{
-	case sf::Keyboard::W:
-		m_iforward = 1.0f;
-		break;
-	case sf::Keyboard::S:
-		m_iforward = -1.0f;
-		break;
-	case sf::Keyboard::A:
-		m_ileft = -1.0f;
-		break;
-	case sf::Keyboard::D:
-		m_ileft = 1.0f;
-		break;
 	case sf::Keyboard::Space:
 		break;
 	default: break;
@@ -381,6 +369,8 @@ void Application::CameraRotation(float a_fSpeed)
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
 	//Change the Yaw and the Pitch of the camera
+	m_pCameraMngr->ChangeYaw(fAngleY * 3.0f);
+	m_pCameraMngr->ChangePitch(-fAngleX * 3.0f);
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
 //Keyboard
@@ -397,6 +387,18 @@ void Application::ProcessKeyboard(void)
 
 	if (fMultiplier)
 		fSpeed *= 5.0f;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		m_iforward = fSpeed;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		m_iforward = -fSpeed;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		m_ileft = -fSpeed;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		m_ileft = fSpeed;
 #pragma endregion
 }
 //Joystick

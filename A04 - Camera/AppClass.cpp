@@ -3,7 +3,7 @@ using namespace Simplex;
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Ethan Nichols - etn6701@rit.edu";
 
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -31,22 +31,35 @@ void Application::Update(void)
 	//Is the first person camera active?
 	CameraRotation();
 
+	//Get and set a normalized vector3 facing forward from the camera view
 	vector3 lForward = m_pCamera->GetTarget() - m_pCamera->GetPosition();
 	lForward = lForward / (float)glm::sqrt((lForward.x * lForward.x) + (lForward.y * lForward.y) + (lForward.z * lForward.z));
+
+	//Get the vector3 that is up from the camera
 	vector3 lUp = m_pCamera->GetUp();
 
+	//Get the cross product of the forward and up to get the left vector3 and normalize it
 	vector3 lLeft = vector3(((lForward.y * lUp.z) - (lForward.z * lUp.y)) * 1,
 							((lForward.z * lUp.x) - (lForward.x * lUp.z)) * 1,
 							((lForward.x * lUp.y) - (lForward.y * lUp.x)) * 1);
 	lLeft = lLeft / (float)glm::sqrt((lLeft.x * lLeft.x) + (lLeft.y * lLeft.y) + (lLeft.z * lLeft.z));
 
-	std::cout << lLeft.x << " " << lLeft.y << " " << lLeft.z << " " << std::endl;
+	//Calculate the movement forward and left from the inputs
+	vector3 movement = lForward * m_iforward + lLeft * m_ileft;
 
-	vector3 movement = m_iforward * m_ileft + lLeft * m_ileft;
+	//Smoothly (LERP) move to the new position
+	vector3 newPos = glm::lerp(m_pCamera->GetPosition(), m_pCamera->GetPosition() + movement, 1.0f);
 
-	m_pCamera->SetPosition(m_pCamera->GetPosition() + lForward * m_iforward + lLeft * m_ileft);
-	m_pCamera->SetTarget(m_pCamera->GetTarget() + lForward * m_iforward + lLeft * m_ileft);
+	//Set the new position
+	m_pCamera->SetPosition(newPos);
 
+	//Set the target in front of the camera's relative position
+	m_pCamera->SetTarget(m_pCamera->GetPosition() + lForward);
+
+	//Set the current up vector to the previous up vector
+	m_pCamera->SetUp(lUp);
+
+	//Reset the forward and left value
 	m_iforward = 0;
 	m_ileft = 0;
 
