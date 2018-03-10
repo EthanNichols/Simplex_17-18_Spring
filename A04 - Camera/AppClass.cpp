@@ -31,6 +31,25 @@ void Application::Update(void)
 	//Is the first person camera active?
 	CameraRotation();
 
+	vector3 lForward = m_pCamera->GetTarget() - m_pCamera->GetPosition();
+	lForward = lForward / (float)glm::sqrt((lForward.x * lForward.x) + (lForward.y * lForward.y) + (lForward.z * lForward.z));
+	vector3 lUp = m_pCamera->GetUp();
+
+	vector3 lLeft = vector3(((lForward.y * lUp.z) - (lForward.z * lUp.y)) * 1,
+							((lForward.z * lUp.x) - (lForward.x * lUp.z)) * 1,
+							((lForward.x * lUp.y) - (lForward.y * lUp.x)) * 1);
+	lLeft = lLeft / (float)glm::sqrt((lLeft.x * lLeft.x) + (lLeft.y * lLeft.y) + (lLeft.z * lLeft.z));
+
+	std::cout << lLeft.x << " " << lLeft.y << " " << lLeft.z << " " << std::endl;
+
+	vector3 movement = m_iforward * m_ileft + lLeft * m_ileft;
+
+	m_pCamera->SetPosition(m_pCamera->GetPosition() + lForward * m_iforward + lLeft * m_ileft);
+	m_pCamera->SetTarget(m_pCamera->GetTarget() + lForward * m_iforward + lLeft * m_ileft);
+
+	m_iforward = 0;
+	m_ileft = 0;
+
 	//Add objects to the Manager
 	for (int j = -50; j < 50; j += 2)
 	{

@@ -69,9 +69,21 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 {
 	switch (a_event.key.code)
 	{
-	default: break;
+	case sf::Keyboard::W:
+		m_iforward = 1.0f;
+		break;
+	case sf::Keyboard::S:
+		m_iforward = -1.0f;
+		break;
+	case sf::Keyboard::A:
+		m_ileft = -1.0f;
+		break;
+	case sf::Keyboard::D:
+		m_ileft = 1.0f;
+		break;
 	case sf::Keyboard::Space:
 		break;
+	default: break;
 	}
 	//gui
 	gui.io.KeysDown[a_event.key.code] = true;
