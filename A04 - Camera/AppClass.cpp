@@ -16,6 +16,8 @@ void Application::InitVariables(void)
 			vector3(0.0f, 3.0f, 19.0f), //where what I'm looking at is
 			AXIS_Y);					//what is up
 
+	m_pCamera->SetUp(AXIS_Y);
+
 	//Get the singleton
 	m_pMyMeshMngr = MyMeshManager::GetInstance();
 	m_pMyMeshMngr->SetCamera(m_pCamera);
@@ -37,18 +39,27 @@ void Application::Update(void)
 
 	//Get the vector3 that is up from the camera
 	vector3 lUp = m_pCamera->GetUp();
+	lUp = lUp / (float)glm::sqrt((lUp.x * lUp.x) + (lUp.y * lUp.y) + (lUp.z * lUp.z));
 
 	//Get the cross product of the forward and up to get the left vector3 and normalize it
-	vector3 lLeft = vector3(((lForward.y * lUp.z) - (lForward.z * lUp.y)) * 1,
-							((lForward.z * lUp.x) - (lForward.x * lUp.z)) * 1,
-							((lForward.x * lUp.y) - (lForward.y * lUp.x)) * 1);
+	vector3 lLeft = vector3(((lForward.y * lUp.z) - (lForward.z * lUp.y)),
+							((lForward.z * lUp.x) - (lForward.x * lUp.z)),
+							((lForward.x * lUp.y) - (lForward.y * lUp.x)));
 	lLeft = lLeft / (float)glm::sqrt((lLeft.x * lLeft.x) + (lLeft.y * lLeft.y) + (lLeft.z * lLeft.z));
+
+	//Calculate the rotation of the camera
+	glm::quat rotation = glm::angleAxis(m_fAngleY, lUp) * glm::angleAxis(-m_fAngleX, lLeft);
+
+	//Set the new forward and up vectors for the camera
+	lForward = rotation * lForward;
+	lUp = rotation * lUp;
+
+	//Reset the rotation angle amounts
+	m_fAngleX = 0;
+	m_fAngleY = 0;
 
 	//Calculate the movement forward and left from the inputs
 	vector3 movement = lForward * m_iforward + lLeft * m_ileft;
-
-	//vector3 newTarget = glm::lerp(m_pCamera->GetTarget(), m_pCamera->GetTarget(), 1.0f);
-	//newTarget = newTarget / (float)glm::sqrt((newTarget.x * newTarget.x) + (newTarget.y * newTarget.y) + (newTarget.z * newTarget.z));
 
 	//Smoothly (LERP) move to the new position
 	vector3 newPos = glm::lerp(m_pCamera->GetPosition(), m_pCamera->GetPosition() + movement, 1.0f);
