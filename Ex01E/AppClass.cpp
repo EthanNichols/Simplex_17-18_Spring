@@ -13,9 +13,28 @@ void Application::Display(void)
 #pragma endregion
 	//Your code goes here ---------------------------------------------------------
 	
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //Replace with your name and email
-	vector3 v3CurrentPos; //Initialize this variable accordingly
+	m_sProgrammer = "Ethan Nichols - etn6701@rit.edu"; //Replace with your name and email
+	static vector3 v3CurrentPos; //Initialize this variable accordingly
 	matrix4 m4Model = glm::translate(IDENTITY_M4, v3CurrentPos) * ToMatrix4(m_qArcBall);
+
+	//The percentage between points
+	static float percentage = 0;
+
+	//The current and next position the object will move to
+	static int curPos = 0;
+	int nextPos = (curPos + 1) % m_v3StopList.size();
+
+	//Lerp between the points
+	v3CurrentPos = glm::lerp(m_v3StopList[curPos], m_v3StopList[nextPos], percentage);
+
+	//Increase the percentage between the points
+	percentage += .01f;
+
+	//Once the percentage reaches one reset, and set the new current position
+	if (percentage >= 1) {
+		percentage = 0;
+		curPos = (curPos + 1) % m_v3StopList.size();
+	}
 	
 	
 	//---------------------------------------------------------

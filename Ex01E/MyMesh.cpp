@@ -20,14 +20,31 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	// Replace this with your code:
 	//-------------------------------------------------------------------
 
+	//Create the center top and bottom vertices
+	vector3 topMid = vector3(0, -a_fHeight, 0);
+	vector3 botMid = vector3(0, 0, 0);
 
+	//List of vertices for the circle
+	std::vector<vector3> vertices;
 
-	GenerateCube(a_fRadius, C_RED); //Remember AddTri and AddVertexPosition are your friends. 
+	//Calculate the angle between vertices
+	float angle = 360 / (float)a_nSubdivisions;
 
+	//Create all the vertices for the circle
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		vertices.push_back(vector3(sin(glm::radians(angle * i)) * a_fRadius, 0, cos(glm::radians(angle * i)) * a_fRadius));
+	}
 
+	//Loop through all the vertices
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		//Get the next vertex
+		int i2 = (i + 1) % a_nSubdivisions;
 
-	//-------------------------------------------------------------------
-	//No need for changes below this line
+		//Create the triangle to the top middle and bottom middle
+		AddTri(vertices[i2], vertices[i], topMid);
+		AddTri(vertices[i], vertices[i2], botMid);
+	}
+
 	CompleteMesh(a_v3Color);// Adding information about color
 	CompileOpenGL3X();//Compiling the mesh
 }
