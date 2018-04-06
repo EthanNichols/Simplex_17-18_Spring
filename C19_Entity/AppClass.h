@@ -11,6 +11,7 @@ Date: 2017/06
 #include "imgui\ImGuiObject.h"
 
 #include "MyEntity.h"
+#include "_MyEntityManager.h"
 
 namespace Simplex
 {
@@ -25,6 +26,8 @@ class Application
 
 	vector3 m_v3Creeper; //position of the creeper
 	quaternion m_qCreeper; //orientation for the creeper
+
+	_MyEntityManager* entityManager;
 		
 private:
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //programmer
