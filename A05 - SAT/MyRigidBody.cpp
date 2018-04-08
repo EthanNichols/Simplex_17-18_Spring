@@ -71,7 +71,7 @@ void MyRigidBody::SetColorNotColliding(vector3 a_v3Color) { m_v3ColorNotCollidin
 vector3 MyRigidBody::GetCenterLocal(void) { return m_v3Center; }
 vector3 MyRigidBody::GetMinLocal(void) { return m_v3MinL; }
 vector3 MyRigidBody::GetMaxLocal(void) { return m_v3MaxL; }
-vector3 MyRigidBody::GetCenterGlobal(void){	return vector3(m_m4ToWorld * vector4(m_v3Center, 1.0f)); }
+vector3 MyRigidBody::GetCenterGlobal(void) { return vector3(m_m4ToWorld * vector4(m_v3Center, 1.0f)); }
 vector3 MyRigidBody::GetMinGlobal(void) { return m_v3MinG; }
 vector3 MyRigidBody::GetMaxGlobal(void) { return m_v3MaxG; }
 vector3 MyRigidBody::GetHalfWidth(void) { return m_v3HalfWidth; }
@@ -228,11 +228,11 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
 	//check if spheres are colliding as pre-test
 	bool bColliding = (glm::distance(GetCenterGlobal(), a_pOther->GetCenterGlobal()) < m_fRadius + a_pOther->m_fRadius);
-	
+
 	//if they are colliding check the SAT
 	if (bColliding)
 	{
-		if(SAT(a_pOther) != eSATResults::SAT_NONE)
+		if (SAT(a_pOther) != eSATResults::SAT_NONE)
 			bColliding = false;// reset to false
 	}
 
@@ -276,17 +276,108 @@ void MyRigidBody::AddToRenderList(void)
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	/*
-	Your code goes here instead of this comment;
 
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
+	//The rotation of the obj or col obj
+	float rotA, rotB;
 
-	//there is no axis test that separates this two objects
+	//The axes of the objects being tested
+	vector3 objAxes[3];
+	vector3 colAxes[3];
+
+	//Set the object and colliding object centers
+	vector3 objCenter = GetCenterGlobal();
+	vector3 colCenter = a_pOther->GetCenterGlobal();
+
+	//Get the three axes of this object
+	objAxes[0] = vector3(m_m4ToWorld * vector4(1, 0, 0, 0));
+	objAxes[1] = vector3(m_m4ToWorld * vector4(0, 1, 0, 0));
+	objAxes[2] = vector3(m_m4ToWorld * vector4(0, 0, 1, 0));
+
+	//Get the three axes of the colliding object
+	colAxes[0] = vector3(a_pOther->m_m4ToWorld * vector4(1, 0, 0, 0));
+	colAxes[1] = vector3(a_pOther->m_m4ToWorld * vector4(0, 1, 0, 0));
+	colAxes[2] = vector3(a_pOther->m_m4ToWorld * vector4(0, 0, 1, 0));
+
+	//Get the half widths of the objects
+	vector3 objHalf = m_v3HalfWidth;
+	vector3 colHalf = a_pOther->m_v3HalfWidth;
+
+	//The rotation and absulote rotation value
+	matrix3 Rot, AbsRot;
+
+	//Loop through and set the axes
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			Rot[i][j] = glm::dot(objAxes[i], colAxes[j]);
+
+	//Get the distance between the objects
+	vector3 distance = colCenter - objCenter;
+	distance = vector3(glm::dot(distance, objAxes[0]), glm::dot(distance, objAxes[1]), glm::dot(distance, objAxes[2]));
+
+	//Set the absulote rotation value
+	//This removes issues when vectors are parrallel
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			AbsRot[i][j] = glm::abs(Rot[i][j]) + 0.00001f;
+
+	//Test this objects axes for collision
+	for (int i = 0; i < 3; i++) {
+		rotA = objHalf[i];
+		rotB = colHalf[0] * AbsRot[i][0] + colHalf[1] * AbsRot[i][1] + colHalf[2] * AbsRot[i][2];
+		if (glm::abs(distance[i]) > rotA + rotB) return 1;
+	}
+
+	//Test the obj being tested axes for collision
+	for (int i = 0; i < 3; i++) {
+		rotA = objHalf[0] * AbsRot[0][i] + objHalf[1] * AbsRot[1][i] + objHalf[2] * AbsRot[2][i];
+		rotB = colHalf[i];
+		if (glm::abs(distance[0] * Rot[0][i] + distance[1] * Rot[1][i] + distance[2] * Rot[2][i]) > rotA + rotB) return 1;
+	}
+
+	//Test obj axis 0 with col axis 0
+	rotA = objHalf[1] * AbsRot[2][0] + objHalf[2] * AbsRot[1][0];
+	rotB = colHalf[1] * AbsRot[0][2] + colHalf[2] * AbsRot[0][1];
+	if (glm::abs(distance[2] * Rot[1][0] - distance[1] * Rot[2][0]) > rotA + rotB) return 1;
+
+	//Test obj axis 0 with col axis 1
+	rotA = objHalf[1] * AbsRot[2][1] + objHalf[2] * AbsRot[1][1];
+	rotB = colHalf[0] * AbsRot[0][2] + colHalf[2] * AbsRot[0][0];
+	if (glm::abs(distance[2] * Rot[1][1] - distance[1] * Rot[2][1]) > rotA + rotB) return 1;
+
+	//Test obj axis 0 with col axis 2
+	rotA = objHalf[1] * AbsRot[2][2] + objHalf[2] * AbsRot[1][2];
+	rotB = colHalf[0] * AbsRot[0][1] + colHalf[1] * AbsRot[0][0];
+	if (glm::abs(distance[2] * Rot[1][2] - distance[1] * Rot[2][2]) > rotA + rotB) return 1;
+
+	//Test obj axis 1 with col axis 0
+	rotA = objHalf[0] * AbsRot[2][0] + objHalf[2] * AbsRot[0][0];
+	rotB = colHalf[1] * AbsRot[1][2] + colHalf[2] * AbsRot[1][1];
+	if (glm::abs(distance[0] * Rot[2][0] - distance[2] * Rot[0][0]) > rotA + rotB) return 1;
+
+	//Test obj axis 1 with col axis 1
+	rotA = objHalf[0] * AbsRot[2][1] + objHalf[2] * AbsRot[0][1];
+	rotB = colHalf[0] * AbsRot[1][2] + colHalf[2] * AbsRot[1][0];
+	if (glm::abs(distance[0] * Rot[2][1] - distance[2] * Rot[0][1]) > rotA + rotB) return 1;
+
+	//Test obj axis 1 with col axis 2
+	rotA = objHalf[0] * AbsRot[2][2] + objHalf[2] * AbsRot[0][2];
+	rotB = colHalf[0] * AbsRot[1][1] + colHalf[1] * AbsRot[1][0];
+	if (glm::abs(distance[0] * Rot[2][2] - distance[2] * Rot[0][2]) > rotA + rotB) return 1;
+
+	//Test obj axis 2 with col axis 0
+	rotA = objHalf[0] * AbsRot[1][0] + objHalf[1] * AbsRot[0][0];
+	rotB = colHalf[1] * AbsRot[2][2] + colHalf[2] * AbsRot[2][1];
+	if (glm::abs(distance[1] * Rot[0][0] - distance[0] * Rot[1][0]) > rotA + rotB) return 1;
+
+	//Test obj axis 2 with col axis 1
+	rotA = objHalf[0] * AbsRot[1][1] + objHalf[1] * AbsRot[0][1];
+	rotB = colHalf[0] * AbsRot[2][2] + colHalf[2] * AbsRot[2][0];
+	if (glm::abs(distance[1] * Rot[0][1] - distance[0] * Rot[1][1]) > rotA + rotB) return 1;
+
+	//Test obj axis 2 with col axis 2
+	rotA = objHalf[0] * AbsRot[1][2] + objHalf[1] * AbsRot[0][2];
+	rotB = colHalf[0] * AbsRot[2][1] + colHalf[1] * AbsRot[2][0];
+	if (glm::abs(distance[1] * Rot[0][2] - distance[0] * Rot[1][2]) > rotA + rotB) return 1;
+
 	return eSATResults::SAT_NONE;
 }
