@@ -708,7 +708,7 @@ void Mesh::GenerateSkybox(void)
 	CompleteMesh(C_WHITE);
 	CompileOpenGL3X();
 	m_sName = "Skybox_Skybox.png";
-	SetMaterial("Skybox", "Skybox.png");
+	SetMaterial("Skybox", "Skybox_03.png");
 	SetShaderProgram("Skybox");
 }
 void Mesh::Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mWorld, vector3 a_v3CameraPosition, int a_RenderOption)

@@ -12,10 +12,6 @@ void Application::InitVariables(void)
 	
 	//Entity Manager
 	m_pEntityMngr = MyEntityManager::GetInstance();
-	
-	//creeper
-	m_pEntityMngr->AddEntity("Minecraft\\Creeper.obj", "Creeper");
-	m_pEntityMngr->SetAxisVisibility(true, "Creeper"); //set visibility of the entity's axis
 
 	//steve
 	m_pEntityMngr->AddEntity("Minecraft\\Steve.obj", "Steve");
@@ -50,15 +46,10 @@ void Application::Update(void)
 	//Is the first person camera active?
 	CameraRotation();
 	
-	//Set model matrix to the creeper
-	matrix4 mCreeper = glm::translate(m_v3Creeper) * ToMatrix4(m_qCreeper) * ToMatrix4(m_qArcBall);
-	m_pEntityMngr->SetModelMatrix(mCreeper, "Creeper");
-	
 
 	//Set model matrix to Steve
 	matrix4 mSteve = glm::translate(vector3(2.5f, 0.0f, 0.0f)) * glm::rotate(IDENTITY_M4, -55.0f, AXIS_Z);
 	m_pEntityMngr->SetModelMatrix(mSteve, "Steve");
-
 
 	//Move the last entity added slowly to the right
 	matrix4 lastMatrix = m_pEntityMngr->GetModelMatrix();// get the model matrix of the last added
