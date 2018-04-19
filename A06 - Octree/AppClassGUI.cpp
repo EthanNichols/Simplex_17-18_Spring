@@ -8,7 +8,7 @@ void Application::DrawGUI(void)
 	uint nEmptyLines = 20;
 	for (uint i = 0; i < nEmptyLines; ++i)
 		m_pMeshMngr->PrintLine("");//Add a line on top
-	//m_pMeshMngr->Print("						");
+								   //m_pMeshMngr->Print("						");
 	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), C_YELLOW);
 	//m_pMeshMngr->Print("						");
 
@@ -39,7 +39,7 @@ void Application::DrawGUI(void)
 			ImGui::Text("FrameRate: %.2f [FPS] -> %.3f [ms/frame]\n",
 				ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
 			ImGui::Text("Levels in Octree: %d\n", m_uOctantLevels);
-			//ImGui::Text("Octants: %d\n", m_pRoot->GetOctantCount());
+			ImGui::Text("Octants: %d\n", m_Octant->GetOctantCount());
 			ImGui::Text("Objects: %d\n", m_uObjects);
 			ImGui::Separator();
 			ImGui::Text("Control:\n");
@@ -110,9 +110,9 @@ void Application::RenderDrawLists(ImDrawData* draw_data)
 	const float ortho_projection[4][4] =
 	{
 		{ 2.0f / io.DisplaySize.x, 0.0f,                   0.0f, 0.0f },
-		{ 0.0f,                  2.0f / -io.DisplaySize.y, 0.0f, 0.0f },
-		{ 0.0f,                  0.0f,                  -1.0f, 0.0f },
-		{ -1.0f,                  1.0f,                   0.0f, 1.0f },
+	{ 0.0f,                  2.0f / -io.DisplaySize.y, 0.0f, 0.0f },
+	{ 0.0f,                  0.0f,                  -1.0f, 0.0f },
+	{ -1.0f,                  1.0f,                   0.0f, 1.0f },
 	};
 	glUseProgram(Application::gui.m_nShader);
 	glUniform1i(Application::gui.m_nTex, 0);
@@ -171,7 +171,7 @@ bool Application::CreateFontsTexture()
 	int width, height;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
 
-	// Upload texture to graphics system
+															  // Upload texture to graphics system
 	GLint last_texture;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
 	glGenTextures(1, &gui.m_uFontTexture);
@@ -288,7 +288,7 @@ void Application::NewFrame()
 	io.DeltaTime = fDelta;
 	gui.m_dTimeTotal += fDelta;
 
-	
+
 	// Start the frame
 	ImGui::NewFrame();
 }
@@ -316,7 +316,7 @@ void Application::InitIMGUI(void)
 	io.KeyMap[ImGuiKey_X] = sf::Keyboard::X;
 	io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Y;
 	io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
-		
+
 	// We are using the alternative; set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
 	io.RenderDrawListsFn = NULL; // = RenderDrawListsFunction;
 	io.SetClipboardTextFn = NULL;

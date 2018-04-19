@@ -35,7 +35,7 @@ namespace Simplex
 
 		std::vector<uint> m_EntityList; //List of Entities under this octant (Index in Entity Manager)
 
-		MyOctant* m_pRoot = nullptr;//Root octant
+		MyOctant* m_Octant = nullptr;//Root octant
 		std::vector<MyOctant*> m_lChild; //list of nodes that contain objects (this will be applied to root only)
 
 	public:
